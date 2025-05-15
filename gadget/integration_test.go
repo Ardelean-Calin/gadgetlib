@@ -18,8 +18,14 @@ func TestSerialGadgetIntegration(t *testing.T) {
 	}()
 
 	g.SetAttrs(&GadgetAttrs{
-		IdVendor:  o.Some[uint16](0x1d6b),
-		IdProduct: o.Some[uint16](0x0104),
+		BcdUSB:          o.Some[uint16](0x0300), // USB3.0
+		BDeviceClass:    o.None[uint8](),
+		BDeviceSubClass: o.None[uint8](),
+		BDeviceProtocol: o.None[uint8](),
+		BMaxPacketSize0: o.None[uint8](),
+		IdVendor:        o.Some[uint16](0x1d6b), // Linux Foundation
+		IdProduct:       o.Some[uint16](0x0104), // Multifunction Composite Gadget
+		BcdDevice:       o.Some[uint16](0x0100), // v1.0.0
 	})
 	if err := g.SetStrs(&GadgetStrs{
 		SerialNumber: "12345",
@@ -35,7 +41,10 @@ func TestSerialGadgetIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateConfig failed: %v", err)
 	}
-	cfg.SetAttrs(&ConfigAttrs{})
+	cfg.SetAttrs(&ConfigAttrs{
+		BmAttributes: o.None[uint8](),
+		BMaxPower:    o.None[uint8](),
+	})
 	if err := cfg.SetStrs(&ConfigStrs{Configuration: "SerialConfig"}, LangUsEng); err != nil {
 		t.Fatalf("Config.SetStrs failed: %v", err)
 	}
