@@ -25,9 +25,14 @@ func (e *SerialFunction) Name() string {
 	return e.name
 }
 
-// func (e *SerialFunction) GetDev() string {
-// 	return e.instance
-// }
+func (e *SerialFunction) GetDev() (string, error) {
+	path := filepath.Join(e.path, e.name, "dev")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("cannot get device: %w", err)
+	}
+	return string(data), nil
+}
 
 func CreateSerialFunction(g *Gadget, instance string) *SerialFunction {
 	basePath := filepath.Join(g.Path(), FunctionsDir)
