@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/flotter/kernos-workshop/services/otg/pkg/gadget"
-	o "github.com/flotter/kernos-workshop/services/otg/pkg/gadget/option"
+	"usbgadgets/gadget"
+	o "usbgadgets/gadget/option"
 )
 
 func cdc() {
@@ -41,5 +41,4 @@ func cdc() {
 	c.SetStrs(&gadget.ConfigStrs{
 		Configuration: "Config 1: ECM network",
 	}, gadget.LangUsEng)
-
 }

@@ -3,7 +3,7 @@ package gadget
 import (
 	"testing"
 
-	o "github.com/flotter/kernos-workshop/services/otg/pkg/gadget/option"
+	o "usbgadgets/gadget/option"
 )
 
 func TestSerialGadgetIntegration(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	o "github.com/flotter/kernos-workshop/services/otg/pkg/gadget/option"
+	o "usbgadgets/gadget/option"
 )
 
 const (

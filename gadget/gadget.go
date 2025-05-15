@@ -5,12 +5,14 @@ import (
 	"os"
 	"path/filepath"
 
-	o "github.com/flotter/kernos-workshop/services/otg/pkg/gadget/option"
+	o "usbgadgets/gadget/option"
 )
 
-const BasePath = "/sys/kernel/config/usb_gadget"
-const StringsDir = "strings"
-const LangUsEng = 0x0409
+const (
+	BasePath   = "/sys/kernel/config/usb_gadget"
+	StringsDir = "strings"
+	LangUsEng  = 0x0409
+)
 
 type Gadget struct {
 	basePath string

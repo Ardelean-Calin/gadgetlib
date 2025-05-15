@@ -25,6 +25,10 @@ func (e *SerialFunction) Name() string {
 	return e.name
 }
 
+// func (e *SerialFunction) GetDev() string {
+// 	return e.instance
+// }
+
 func CreateSerialFunction(g *Gadget, instance string) *SerialFunction {
 	basePath := filepath.Join(g.Path(), FunctionsDir)
 	name := fmt.Sprintf("%s.%s", SerialFunctionTypeName, instance)

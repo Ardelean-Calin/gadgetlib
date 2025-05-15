@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/flotter/kernos-workshop/services/otg/pkg/gadget"
-	o "github.com/flotter/kernos-workshop/services/otg/pkg/gadget/option"
+	"usbgadgets/gadget"
+	o "usbgadgets/gadget/option"
 )
 
 func main() {
@@ -134,6 +134,7 @@ func (m *mouse) Scroll(x int, y int) {
 func (m *mouse) MouseDown(button Button) {
 	m.buttons |= 1 << button
 }
+
 func (m *mouse) MouseUp(button Button) {
 	m.buttons &= ^(1 << button)
 }
