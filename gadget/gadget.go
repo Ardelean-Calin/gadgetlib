@@ -8,8 +8,9 @@ import (
 	o "usbgadgets/gadget/option"
 )
 
+var BasePath = "/sys/kernel/config/usb_gadget"
+
 const (
-	BasePath   = "/sys/kernel/config/usb_gadget"
 	StringsDir = "strings"
 	LangUsEng  = 0x0409
 )
