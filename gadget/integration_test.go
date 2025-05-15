@@ -1,12 +1,27 @@
 package gadget
 
 import (
+	"os"
+	"strings"
 	"testing"
 
 	o "usbgadgets/gadget/option"
 )
 
+func inDocker() bool {
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		return true
+	}
+	if data, err := os.ReadFile("/proc/1/cgroup"); err == nil {
+		return strings.Contains(string(data), "docker")
+	}
+	return false
+}
+
 func TestSerialGadgetIntegration(t *testing.T) {
+	if !inDocker() {
+		t.Skip("skipping integration test: not inside Docker")
+	}
 	g, err := CreateGadget("test_serial")
 	if err != nil {
 		t.Fatalf("CreateGadget failed: %v", err)
