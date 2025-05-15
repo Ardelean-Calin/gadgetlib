@@ -43,7 +43,7 @@ func CreateECMFunction(g *Gadget, instance string) *ECMFunction {
 		g: g,
 	}
 
-	err := os.Mkdir(path, os.ModePerm)
+	err := os.MkdirAll(path, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		log.Fatal(err)
 	}

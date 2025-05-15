@@ -26,12 +26,13 @@ func (e *SerialFunction) Name() string {
 }
 
 func (e *SerialFunction) GetDev() (string, error) {
-	path := filepath.Join(e.path, e.name, "dev")
+	path := filepath.Join(e.path, e.name, "port_num")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return "", fmt.Errorf("cannot get device: %w", err)
 	}
-	return string(data), nil
+
+	return "/dev/ttyGS" + string(data), nil
 }
 
 func CreateSerialFunction(g *Gadget, instance string) *SerialFunction {
@@ -47,7 +48,7 @@ func CreateSerialFunction(g *Gadget, instance string) *SerialFunction {
 		g: g,
 	}
 
-	err := os.Mkdir(path, os.ModePerm)
+	err := os.MkdirAll(path, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		log.Fatal(err)
 	}

@@ -7,7 +7,8 @@ import (
 
 func TestSerialFunctionPathAndName(t *testing.T) {
 	tmp := t.TempDir()
-	BasePath = tmp
+	defer SetGadgetBase(tmp)()
+
 	g, err := CreateGadget("testg")
 	if err != nil {
 		t.Fatalf("CreateGadget failed: %v", err)
@@ -25,7 +26,8 @@ func TestSerialFunctionPathAndName(t *testing.T) {
 
 func TestECMFunctionPathAndName(t *testing.T) {
 	tmp := t.TempDir()
-	BasePath = tmp
+	defer SetGadgetBase(tmp)()
+
 	g, err := CreateGadget("teste")
 	if err != nil {
 		t.Fatalf("CreateGadget failed: %v", err)

@@ -51,7 +51,7 @@ func CreateGadget(name string) (*Gadget, error) {
 		name:     name,
 	}
 
-	err := os.Mkdir(path, os.ModePerm)
+	err := os.MkdirAll(path, os.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		return nil, fmt.Errorf("cannot create gadget: %w", err)
 	}
