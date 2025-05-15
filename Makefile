@@ -1,6 +1,8 @@
-.PHONY: test test-integration test-all
+.PHONY: test
 
-test:
+test: test-units test-integration
+
+test-units:
 	go test ./gadget
 
 test-integration:
@@ -14,6 +16,4 @@ test-integration:
 	  -v /sys/kernel/config:/sys/kernel/config \
 	  -w /usr/src/app \
 	 	golang:1.24 /bin/bash -c "go test ./gadget -tags=integration"
-
-	 test-all: test test-integration
 
