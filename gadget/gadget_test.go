@@ -1,6 +1,7 @@
 package gadget_test
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -41,7 +42,7 @@ func TestCreateCompositeGadget(t *testing.T) {
 	}
 	defer g.Teardown()
 
-	// TODO 1: Check that all files and symlinks were properly created
+	// Check that all files and symlinks were properly created
 	assertPathExists(gadget.GadgetBaseDir, t)
 	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/configs/cfg.1"), t)
 	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/configs/cfg.1/strings/0x409/configuration"), t)
@@ -51,6 +52,27 @@ func TestCreateCompositeGadget(t *testing.T) {
 	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0"), t)
 	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0/dev_addr"), t)
 	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0/host_addr"), t)
-	// TODO 2: Check that Enable/Disable writes the proper UDC controller
-	// Check that the controller was written to the `UDC` file AI!
+
+	// Check that Enable writes the proper UDC controller
+	if err := g.Enable(); err != nil {
+		t.Error(err)
+	}
+	data, err := os.ReadFile(filepath.Join(g.Path(), "UDC"))
+	if err != nil {
+		t.Error(err)
+	}
+	if string(data) != opts.Controller {
+		t.Errorf("expected UDC file to contain %q, got %q", opts.Controller, string(data))
+	}
+	// Check that Disable writes a newline
+	if err := g.Disable(); err != nil {
+		t.Error(err)
+	}
+	data, err = os.ReadFile(filepath.Join(g.Path(), "UDC"))
+	if err != nil {
+		t.Error(err)
+	}
+	if string(data) != "\n" {
+		t.Errorf("expected UDC file to contain newline, got %q", string(data))
+	}
 }
