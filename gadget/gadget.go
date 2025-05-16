@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var GadgetBaseDir = "/sys/kernel/config/usb_gadget"
+var gadgetBaseDir = "/sys/kernel/config/usb_gadget"
 
 type GadgetOptions struct {
 	Name         string
@@ -257,7 +257,7 @@ func (g *USBGadget) ensureFile(relPath string, content string) error {
 
 func New(opts GadgetOptions) (Gadget, error) {
 	g := &USBGadget{
-		base: filepath.Join(GadgetBaseDir, opts.Name),
+		base: filepath.Join(gadgetBaseDir, opts.Name),
 		udc:  opts.Controller,
 
 		name:         opts.Name,
