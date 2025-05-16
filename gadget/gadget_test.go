@@ -8,7 +8,7 @@ import (
 	"usbgadgets/gadget"
 )
 
-func TestCreateCompositeGadget(t *testing.T) {
+func TestCreateSerialGadget(t *testing.T) {
 	gadgetBase := filepath.Join(t.TempDir(), "test_gadget")
 	cleanup := gadget.SetGadgetBaseDir(gadgetBase)
 	defer cleanup()
@@ -42,8 +42,14 @@ func TestCreateCompositeGadget(t *testing.T) {
 	defer g.Teardown()
 
 	// TODO 1: Check that all files and symlinks were properly created
-	assertPathExists(filepath.Join(gadgetBase, "configs", "c.1"), t)
-	assertPathExists(filepath.Join(gadgetBase, "functions", "acm.usb0"), t)
-	assertPathExists(filepath.Join(gadgetBase, "functions", "ecm.usb0"), t)
+	assertPathExists(gadgetBase, t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1"), t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1/strings/0x409/configuration"), t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1/acm.usb0"), t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1/ecm.usb0"), t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/functions/acm.usb0"), t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/functions/ecm.usb0"), t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/functions/ecm.usb0/dev_addr"), t)
+	assertPathExists(filepath.Join(gadgetBase, "foo/functions/ecm.usb0/host_addr"), t)
 	// TODO 2: Check that Enable/Disable writes the proper UDC controller
 }
