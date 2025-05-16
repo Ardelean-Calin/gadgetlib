@@ -1,211 +1,182 @@
 package gadget
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-
-	o "usbgadgets/gadget/option"
 )
 
-var BasePath = "/sys/kernel/config/usb_gadget"
+var GadgetBaseDir = "/sys/kernel/config/usb_gadget"
 
-const (
-	StringsDir = "strings"
-	LangUsEng  = 0x0409
-)
-
-type Gadget struct {
-	basePath string
-	name     string
-	udc      string
-
-	enabled bool
-
-	configs []*Config
-	strings []string
-}
-
-type GadgetAttrs struct {
-	BcdUSB          o.Option[uint16]
-	BDeviceClass    o.Option[uint8]
-	BDeviceSubClass o.Option[uint8]
-	BDeviceProtocol o.Option[uint8]
-	BMaxPacketSize0 o.Option[uint8]
-	IdVendor        o.Option[uint16]
-	IdProduct       o.Option[uint16]
-	BcdDevice       o.Option[uint16]
-}
-
-type GadgetStrs struct {
-	SerialNumber string
+type GadgetOptions struct {
+	Name         string
 	Manufacturer string
-	Product      string
+	// Optional, will generate one if not given
+	Serial string
+	// PID, VID // <= set by default by us
+	Configs []Config
+	// eg. /sys/class/udc/dummy_udc.0
+	// Optionally obtain via `UDCScan()`
+	Controller string
 }
 
-func CreateGadget(name string) (*Gadget, error) {
-	path := filepath.Join(BasePath, name)
-
-	gadget := &Gadget{
-		basePath: BasePath,
-		name:     name,
-	}
-
-	err := os.MkdirAll(path, os.ModePerm)
-	if err != nil && !os.IsExist(err) {
-		return nil, fmt.Errorf("cannot create gadget: %w", err)
-	}
-
-	return gadget, nil
+type Config struct {
+	Number    int
+	Functions []Function
+	Path      string
 }
 
-func (g *Gadget) Enable(udc string) {
-	WriteString(g.basePath, g.name, "UDC", udc)
-	g.udc = udc
-	g.enabled = true
-}
-
-func (g *Gadget) Disable() {
-	WriteString(g.basePath, g.name, "UDC", "\n")
-	g.udc = ""
-	g.enabled = false
-}
-
-func (g *Gadget) SetAttrs(attrs *GadgetAttrs) {
-	if attrs.BcdUSB.IsSome() {
-		g.writeHex16("bcdUSB", attrs.BcdUSB.Value())
-	}
-
-	if attrs.BDeviceClass.IsSome() {
-		g.writeHex8("bDeviceClass", attrs.BDeviceClass.Value())
-	}
-
-	if attrs.BDeviceSubClass.IsSome() {
-		g.writeHex8("bDeviceSubClass", attrs.BDeviceSubClass.Value())
-	}
-
-	if attrs.BDeviceProtocol.IsSome() {
-		g.writeHex8("bDeviceProtocol", attrs.BDeviceProtocol.Value())
-	}
-
-	if attrs.BMaxPacketSize0.IsSome() {
-		g.writeHex8("bMaxPacketSize0", attrs.BMaxPacketSize0.Value())
-	}
-
-	if attrs.IdVendor.IsSome() {
-		g.writeHex16("idVendor", attrs.IdVendor.Value())
-	}
-
-	if attrs.IdProduct.IsSome() {
-		g.writeHex16("idProduct", attrs.IdProduct.Value())
-	}
-
-	if attrs.BcdDevice.IsSome() {
-		g.writeHex16("bcdDevice", attrs.BcdDevice.Value())
-	}
-}
-
-func (g *Gadget) SetStrs(strs *GadgetStrs, lang int) error {
-	langStr := fmt.Sprintf("0x%x", lang)
-	path := filepath.Join(g.basePath, g.name, StringsDir, langStr)
-
-	err := os.MkdirAll(path, os.ModePerm)
+func (c Config) apply(gadgetPath string) error {
+	cfgDir := filepath.Join(gadgetPath, "configs", c.Name())
+	err := os.MkdirAll(cfgDir, os.ModePerm)
 	if err != nil {
-		return fmt.Errorf("cannot set strings: %w", err)
+		return fmt.Errorf("cannot create config directory %q: %w", cfgDir, err)
 	}
-	g.strings = append(g.strings, path)
 
-	WriteString(path, "", "serialnumber", strs.SerialNumber)
-	WriteString(path, "", "manufacturer", strs.Manufacturer)
-	WriteString(path, "", "product", strs.Product)
+	// TODO: populate other configuration related parameters (such as strings)
 
 	return nil
 }
 
-func (g *Gadget) writeHex16(file string, value uint16) {
-	WriteHex16(g.basePath, g.name, file, value)
+func (c Config) Name() string {
+	return fmt.Sprintf("cfg.%d", c.Number)
 }
 
-func (g *Gadget) writeHex8(file string, value uint8) {
-	WriteHex8(g.basePath, g.name, file, value)
+type Gadget interface {
+	Enable() error
+	Disable() error
+	IsEnabled() bool
+	Teardown() error
+	Path() string
 }
 
-func (g *Gadget) writeBuf(file string, buf []byte) {
-	WriteBuf(g.basePath, g.name, file, buf)
+type Function interface {
+	Apply(configPath, gadgetPath string) error
+	Name() string
 }
 
-func (g *Gadget) Path() string {
-	return filepath.Join(g.basePath, g.name)
+type config struct {
+	name      string
+	functions []*function
 }
 
-func (g *Gadget) Name() string {
-	return g.name
+type function struct {
+	name string
 }
 
-func (g *Gadget) IsEnabled() bool {
-	return g.enabled
+type USBGadget struct {
+	// base path of this gadget, easy to tear down
+	base      string
+	udc       string
+	functions []function
+	// Configuration names
+	configs []struct {
+		name      string
+		functions []*function
+	}
 }
 
-// CleanUp cleans up the USB gadget
-func (g *Gadget) CleanUp() error {
-	// We need to disable it first
+func (g *USBGadget) Path() string {
+	return g.base
+}
+
+func (g *USBGadget) Enable() error {
+	return os.WriteFile(filepath.Join(g.base, "UDC"), []byte(g.udc), os.ModePerm)
+}
+
+func (g *USBGadget) Disable() error {
+	return os.WriteFile(filepath.Join(g.base, "UDC"), []byte("\n"), os.ModePerm)
+}
+
+func (g *USBGadget) IsEnabled() bool {
+	data, err := os.ReadFile(filepath.Join(g.base, "UDC"))
+	if err != nil {
+		return false
+	}
+	return string(data) == g.udc
+}
+
+// Add a descriptive method description AI!
+func (g *USBGadget) Teardown() error {
+	var errs []error
+
 	if g.IsEnabled() {
 		g.Disable()
 	}
 
-	var funcs []Function
 	for _, c := range g.configs {
+		cfgBase := filepath.Join(g.base, "configs", c.name)
 		// 1. Remove functions from configurations (aka the symlinks)
-		for _, b := range c.bindings {
-			linkPath := b.Path()
+		for _, f := range c.functions {
+			linkPath := filepath.Join(cfgBase, f.name)
 			err := os.Remove(linkPath)
 			if err != nil {
-				return fmt.Errorf("cannot unlink %q: %w", linkPath, err)
+				errs = append(errs, err)
 			}
-			funcs = append(funcs, b.function)
-			fmt.Printf("Removed symlink: %s\n", linkPath)
 		}
 		// 2. Remove strings directories in configurations
-		for _, path := range c.strings {
-			err := os.RemoveAll(path)
-			if err != nil {
-				return fmt.Errorf("cannot remove strings %q: %w", path, err)
-			}
-			fmt.Printf("Removed config strings: %s\n", path)
+		err := os.RemoveAll(filepath.Join(cfgBase, "strings", "0x409"))
+		if err != nil {
+			errs = append(errs, err)
 		}
 		// 3. Remove the configurations
-		err := os.RemoveAll(c.Path())
+		err = os.RemoveAll(cfgBase)
 		if err != nil {
-			return fmt.Errorf("cannot remove configuration %q: %w", c.name, err)
+			errs = append(errs, err)
 		}
-		fmt.Printf("Removed configuration: %s\n", c.Path())
 	}
-
 	// 4. Remove the functions
-	for _, f := range funcs {
-		err := os.RemoveAll(f.Path())
+	for _, f := range g.functions {
+		funcDir := filepath.Join(g.base, "functions", f.name)
+		err := os.RemoveAll(funcDir)
 		if err != nil {
-			return fmt.Errorf("cannot remove function %q: %w", f, err)
+			errs = append(errs, err)
 		}
-		fmt.Printf("Removed function: %s\n", f.Path())
 	}
-
 	// 5. Remove strings directories in the gadget
-	for _, s := range g.strings {
-		err := os.RemoveAll(s)
-		if err != nil {
-			return fmt.Errorf("cannot remove gadget string %q: %w", s, err)
-		}
-		fmt.Printf("Removed strings: %s\n", s)
-	}
-
-	// 6. Remove the gadget
-	err := os.RemoveAll(g.Path())
+	err := os.RemoveAll(filepath.Join(g.base, "strings", "0x409"))
 	if err != nil {
-		return fmt.Errorf("cannot remove gadget %q: %w", g.name, err)
+		errs = append(errs, err)
+	}
+	// 6. Remove the gadget
+	err = os.RemoveAll(g.base)
+	if err != nil {
+		errs = append(errs, err)
 	}
 
-	fmt.Printf("Successfully removed gadget %q\n", g.name)
+	return errors.Join(errs...)
+}
 
-	return nil
+func New(opts GadgetOptions) (Gadget, error) {
+	g := &USBGadget{
+		base: filepath.Join(GadgetBaseDir, opts.Name),
+		udc:  opts.Controller,
+	}
+
+	for _, c := range opts.Configs {
+		cfg := config{
+			name:      c.Name(),
+			functions: make([]*function, 0),
+		}
+		if err := c.apply(g.base); err != nil {
+			return nil, fmt.Errorf("cannot create gadget config %q: %w", c.Name(), err)
+		}
+		_ = cfg
+		// TODO: Create the config directory, functions, symlinks, etc.
+		// cfg.Apply()
+		// fnc.Apply()
+
+		for _, f := range c.Functions {
+			fn := function{
+				name: f.Name(),
+			}
+
+			if err := f.Apply(c.Path, g.base); err != nil {
+				return nil, err
+			}
+			g.functions = append(g.functions, fn)
+		}
+	}
+	return g, nil
 }

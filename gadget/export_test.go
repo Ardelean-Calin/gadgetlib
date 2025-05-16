@@ -1,9 +1,9 @@
 package gadget
 
-func SetGadgetBase(base string) func() {
-	oldBase := BasePath
-	BasePath = base
+func SetGadgetBaseDir(newDir string) func() {
+	oldDir := GadgetBaseDir
+	GadgetBaseDir = newDir
 	return func() {
-		BasePath = oldBase
+		GadgetBaseDir = oldDir
 	}
 }
