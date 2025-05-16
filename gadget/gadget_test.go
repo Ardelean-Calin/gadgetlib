@@ -61,7 +61,7 @@ func TestCreateCompositeGadget(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if string(data) != opts.Controller {
+	if string(data) != opts.Controller+"\n" {
 		t.Errorf("expected UDC file to contain %q, got %q", opts.Controller, string(data))
 	}
 	// Check that Disable writes a newline
