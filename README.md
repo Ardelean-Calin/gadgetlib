@@ -13,13 +13,13 @@ A Go library for creating and managing USB gadget configurations on Linux system
 With Go modules enabled:
 
 ```bash
-go install gadgetlib@latest
+go install github.com/ardelean-calin/gadgetlib@latest
 ```
 
 Or add to your project:
 
 ```bash
-go get gadgetlib
+go get github.com/ardelean-calin/gadgetlib
 ```
 
 ## Quick Start
@@ -30,8 +30,8 @@ package main
 import (
   "log"
 
-  "gadgetlib/functions"
-  "gadgetlib/gadget"
+  "github.com/ardelean-calin/gadgetlib/functions"
+  "github.com/ardelean-calin/gadgetlib/gadget"
 )
 
 func main() {

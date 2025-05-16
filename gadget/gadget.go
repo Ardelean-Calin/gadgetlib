@@ -147,7 +147,7 @@ func (g *USBGadget) Path() string {
 }
 
 func (g *USBGadget) Enable() error {
-	return os.WriteFile(filepath.Join(g.base, "UDC"), []byte(g.udc), os.ModePerm)
+	return os.WriteFile(filepath.Join(g.base, "UDC"), []byte(g.udc+"\n"), os.ModePerm)
 }
 
 func (g *USBGadget) Disable() error {

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"gadgetlib/functions"
-	"gadgetlib/gadget"
+	"github.com/ardelean-calin/gadgetlib/functions"
+	"github.com/ardelean-calin/gadgetlib/gadget"
 )
 
 func TestCreateCompositeGadget(t *testing.T) {
