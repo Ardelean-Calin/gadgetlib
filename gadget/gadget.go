@@ -74,6 +74,12 @@ func (c *config) apply() error {
 		return fmt.Errorf("cannot write strings for configuration %q: %w", c.name, err)
 	}
 
+	// Set MaxPower
+	err = os.WriteFile(filepath.Join(c.path, "MaxPower"), []byte("250"), os.ModePerm) // 500mA
+	if err != nil {
+		return fmt.Errorf("cannot set configuration MaxPower to 500mA: %q - %w", c.name, err)
+	}
+
 	// Apply/create each individual function
 	var errs []error
 	for _, f := range c.functions {
@@ -222,6 +228,14 @@ func (g *USBGadget) apply() error {
 		return err
 	}
 	err = g.ensureFile("idProduct", "0x0104")
+	if err != nil {
+		return err
+	}
+	err = g.ensureFile("bcdUSB", "0x0300")
+	if err != nil {
+		return err
+	}
+	err = g.ensureFile("bcdDevice", "0x0100")
 	if err != nil {
 		return err
 	}
