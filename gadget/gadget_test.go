@@ -42,14 +42,14 @@ func TestCreateSerialGadget(t *testing.T) {
 	defer g.Teardown()
 
 	// TODO 1: Check that all files and symlinks were properly created
-	assertPathExists(gadgetBase, t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1"), t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1/strings/0x409/configuration"), t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1/acm.usb0"), t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/configs/cfg.1/ecm.usb0"), t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/functions/acm.usb0"), t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/functions/ecm.usb0"), t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/functions/ecm.usb0/dev_addr"), t)
-	assertPathExists(filepath.Join(gadgetBase, "foo/functions/ecm.usb0/host_addr"), t)
+	assertPathExists(gadget.GadgetBaseDir, t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/configs/cfg.1"), t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/configs/cfg.1/strings/0x409/configuration"), t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/configs/cfg.1/acm.usb0"), t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/configs/cfg.1/ecm.usb0"), t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/acm.usb0"), t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0"), t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0/dev_addr"), t)
+	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0/host_addr"), t)
 	// TODO 2: Check that Enable/Disable writes the proper UDC controller
 }
