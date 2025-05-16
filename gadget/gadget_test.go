@@ -4,8 +4,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"usbgadgets/functions"
-	"usbgadgets/gadget"
+	"gadgetlib/functions"
+	"gadgetlib/gadget"
 )
 
 func TestCreateSerialGadget(t *testing.T) {

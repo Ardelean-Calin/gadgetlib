@@ -13,13 +13,13 @@ A Go library for creating and managing USB gadget configurations on Linux system
 With Go modules enabled:
 
 ```bash
-go install usbgadgets@latest
+go install gadgetlib@latest
 ```
 
 Or add to your project:
 
 ```bash
-go get usbgadgets
+go get gadgetlib
 ```
 
 ## Quick Start
@@ -30,8 +30,8 @@ package main
 import (
   "log"
 
-  "usbgadgets/functions"
-  "usbgadgets/gadget"
+  "gadgetlib/functions"
+  "gadgetlib/gadget"
 )
 
 func main() {
