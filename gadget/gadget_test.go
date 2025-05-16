@@ -52,4 +52,5 @@ func TestCreateCompositeGadget(t *testing.T) {
 	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0/dev_addr"), t)
 	assertPathExists(filepath.Join(gadget.GadgetBaseDir, "foo/functions/ecm.usb0/host_addr"), t)
 	// TODO 2: Check that Enable/Disable writes the proper UDC controller
+	// Check that the controller was written to the `UDC` file AI!
 }
