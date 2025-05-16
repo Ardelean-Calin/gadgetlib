@@ -8,8 +8,8 @@ import (
 	"gadgetlib/gadget"
 )
 
-func TestCreateSerialGadget(t *testing.T) {
-	gadgetBase := filepath.Join(t.TempDir(), "test_gadget")
+func TestCreateCompositeGadget(t *testing.T) {
+	gadgetBase := filepath.Join(t.TempDir(), "gadgetlib_test")
 	cleanup := gadget.SetGadgetBaseDir(gadgetBase)
 	defer cleanup()
 
