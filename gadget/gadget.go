@@ -167,7 +167,8 @@ func (g *USBGadget) IsEnabled() bool {
 	return string(data) == g.udc
 }
 
-// Add a descriptive method description AI!
+ // Teardown removes the USB gadget by disabling it if enabled and cleaning up all
+ // configurations, function directories, string directories, and the gadget base directory.
 func (g *USBGadget) Teardown() error {
 	var errs []error
 
@@ -218,7 +219,8 @@ func (g *USBGadget) Teardown() error {
 	return errors.Join(errs...)
 }
 
-// Add a function comment AI!
+ // apply initializes the USB gadget by creating its base directory and writing
+ // device descriptors and string files based on the gadget's settings.
 func (g *USBGadget) apply() error {
 	if err := os.MkdirAll(g.base, os.ModePerm); err != nil {
 		return err
