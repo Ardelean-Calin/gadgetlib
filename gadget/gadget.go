@@ -14,8 +14,7 @@ type GadgetOptions struct {
 	Name         string
 	Manufacturer string
 	// Optional, will generate one if not given
-	Serial string
-	// PID, VID // <= set by default by us
+	Serial  string
 	Configs []Config
 	// eg. /sys/class/udc/dummy_udc.0
 	// Optionally obtain via `UDCScan()`
@@ -219,6 +218,7 @@ func (g *USBGadget) Teardown() error {
 	return errors.Join(errs...)
 }
 
+// Add a function comment AI!
 func (g *USBGadget) apply() error {
 	if err := os.MkdirAll(g.base, os.ModePerm); err != nil {
 		return err
