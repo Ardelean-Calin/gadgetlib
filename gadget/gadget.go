@@ -8,7 +8,10 @@ import (
 	"strings"
 )
 
-var gadgetBaseDir = "/sys/kernel/config/usb_gadget"
+var (
+	gadgetBaseDir = "/sys/kernel/config/usb_gadget"
+	udcDir        = "/sys/class/udc"
+)
 
 type GadgetOptions struct {
 	Name         string
@@ -167,8 +170,8 @@ func (g *USBGadget) IsEnabled() bool {
 	return string(data) == g.udc
 }
 
- // Teardown removes the USB gadget by disabling it if enabled and cleaning up all
- // configurations, function directories, string directories, and the gadget base directory.
+// Teardown removes the USB gadget by disabling it if enabled and cleaning up all
+// configurations, function directories, string directories, and the gadget base directory.
 func (g *USBGadget) Teardown() error {
 	var errs []error
 
@@ -219,8 +222,8 @@ func (g *USBGadget) Teardown() error {
 	return errors.Join(errs...)
 }
 
- // apply initializes the USB gadget by creating its base directory and writing
- // device descriptors and string files based on the gadget's settings.
+// apply initializes the USB gadget by creating its base directory and writing
+// device descriptors and string files based on the gadget's settings.
 func (g *USBGadget) apply() error {
 	if err := os.MkdirAll(g.base, os.ModePerm); err != nil {
 		return err
@@ -305,4 +308,19 @@ func New(opts GadgetOptions) (Gadget, error) {
 		g.configs = append(g.configs, cfg)
 	}
 	return g, nil
+}
+
+// Describe this function AI!
+func UDCScan() ([]string, error) {
+	items, err := os.ReadDir(udcDir)
+	if err != nil {
+		return nil, err
+	}
+
+	var entries []string
+	for _, i := range items {
+		entries = append(entries, i.Name())
+	}
+
+	return entries, nil
 }
