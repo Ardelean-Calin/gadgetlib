@@ -133,11 +133,6 @@ func (c *config) applyFunction(f Function) error {
 	return nil
 }
 
-// What's a better name for this type, AI!
-type function struct {
-	name string
-}
-
 type USBGadget struct {
 	// Basic parameters
 	name         string
