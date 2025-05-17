@@ -310,7 +310,8 @@ func New(opts GadgetOptions) (Gadget, error) {
 	return g, nil
 }
 
-// Describe this function AI!
+// UDCScan returns a slice of available USB Device Controller names by scanning the system UDC directory.
+// It reads each entry in udcDir and returns the list of controller names.
 func UDCScan() ([]string, error) {
 	items, err := os.ReadDir(udcDir)
 	if err != nil {
